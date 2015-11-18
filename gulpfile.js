@@ -19,7 +19,16 @@ var wrappers = {
 };
 
 var js_files = {
-    "input": ["./src/index.js"],
+    "input": {
+        es6: "./wraps/es6.js",
+        iife: "./wraps/iife.js",
+        umd: "./wraps/umd.js"
+    },
+    "output": {
+        es6: "./dist/cope.es6.js",
+        iife: "./dist/cope.iife.js",
+        umd: "./dist/cope.umd.js"
+    },
     "all": ["./src/*.js"]
 };
 
@@ -32,36 +41,33 @@ function preventFromQuitting(error) {
 
 gulp.task('js-umd', function () {
     return gulp
-        .src(js_files.input)
+        .src(js_files.input.umd)
         .pipe(include())
         .on("error", preventFromQuitting)
         .pipe(babel())
         .on("error", preventFromQuitting)
-        .pipe(wrap(wrappers.umd()))
-        .pipe(rename("cope.umd.js"))
-        .pipe(gulp.dest('./dist/'));
+        .pipe(rename(js_files.output.umd))
+        .pipe(gulp.dest('.'));
 });
 
 gulp.task('js-iife', function () {
     return gulp
-        .src(js_files.input)
+        .src(js_files.input.iife)
         .pipe(include())
         .on("error", preventFromQuitting)
         .pipe(babel())
         .on("error", preventFromQuitting)
-        .pipe(wrap(wrappers.iife()))
-        .pipe(rename("cope.iife.js"))
-        .pipe(gulp.dest('./dist/'));
+        .pipe(rename(js_files.output.iife))
+        .pipe(gulp.dest('.'));
 });
 
 gulp.task('js-es6', function () {
     return gulp
-        .src(js_files.input)
+        .src(js_files.input.es6)
         .pipe(include())
         .on("error", preventFromQuitting)
-        .pipe(wrap(wrappers.es6()))
-        .pipe(rename("cope.es6.js"))
-        .pipe(gulp.dest('./dist/'));
+        .pipe(rename(js_files.output.es6))
+        .pipe(gulp.dest('.'));
 });
 
 gulp.task('js', ['js-umd', 'js-es6', 'js-iife']);
