@@ -1,4 +1,4 @@
 //=include ./utils.js
 //=include ./cope.js
-const dupa = ()=>4;
-//export var cope = {};
+import cope from './cope.js';
+export default cope;

@@ -1,5 +1,23 @@
+import {
+    isObject,
+    isArray,
+    isNull,
+    append,
+    mapValues,
+    isPromise,
+    toPromise
+} from './utils';
+
+import {
+    addProgress
+} from './progress';
+
+// - - - - - - - - - - - - - - - - - - - - - - -
+
 function collectResults(resultsArray) {
-    console.log("results", "collect", resultsArray);
+
+    //console.log(resultsArray);
+
     var mergedResult = {};
 
     resultsArray.forEach((result)=> {
@@ -11,30 +29,42 @@ function collectResults(resultsArray) {
     return mergedResult;
 }
 
-function createResultResolver(executionResult) {
-    var resultPromise,
-        stepsPromises;
+function resolveArray(executionResult) {
+    var stepsPromises = executionResult.map(toPromise);
+    var resultPromise = Promise.all(stepsPromises).then(collectResults);
+
+    return {stepsPromises, resultPromise};
+}
+
+function resolveMap(executionResult) {
+    var stepsPromises = mapValues(executionResult, function (key) {
+        return toPromise(executionResult[key])
+            .then(function (resultPart) {
+                return {[key]: resultPart};
+            });
+    });
+    var resultPromise = Promise.all(stepsPromises).then(collectResults);
+
+    return {stepsPromises, resultPromise};
+}
+
+function resolveAny(executionResult) {
+    var resultPromise = toPromise(executionResult);
+    var stepsPromises = [resultPromise];
+
+    return {stepsPromises, resultPromise};
+}
+
+export function resolveResult(executionResult) {
     if (isArray(executionResult)) {
-        console.log("result", "array", executionResult);
-        stepsPromises = executionResult.map(toPromise);
-        resultPromise = Promise.all(stepsPromises).then(collectResults);
+        /** if is an array of values/Promises */
+        var {stepsPromises,resultPromise} = resolveArray(executionResult);
     } else if (!isPromise(executionResult) && isObject(executionResult)) {
-        console.log("result", "map", executionResult);
-        stepsPromises = forEachMap(executionResult, function (key) {
-            return new Promise(function (resolve, reject) {
-                Promise.resolve(executionResult[key]).then(function (resultPart) {
-                    var resultPartContainer = {};
-                    resultPartContainer[key] = resultPart;
-                    resolve(resultPartContainer);
-                }, reject);
-            })
-        });
-        resultPromise = Promise.all(stepsPromises).then(collectResults);
+        /** if is a map of values/Promises */
+        var {stepsPromises,resultPromise} = resolveMap(executionResult);
     } else {
-        console.log("result", "any", executionResult);
         /** if value Promise or just a value */
-        resultPromise = toPromise(executionResult);
-        stepsPromises = [resultPromise];
+        var {stepsPromises,resultPromise} = resolveAny(executionResult);
     }
 
     stepsPromises.forEach(addProgress);

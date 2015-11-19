@@ -1,62 +1,70 @@
-function isArray(arg) {
+
+export function isArray(arg) {
     return typeof arg === "object" && arg instanceof Array;
 }
 
-function isPromise(arg) {
+export function isPromise(arg) {
     return typeof arg === "object" && arg instanceof Promise;
 }
 
-function isObject(arg) {
+export function isObject(arg) {
     return typeof arg === "object" && !isNull(arg) && !isArray(arg);
 }
 
-function isFunction(arg) {
+export function isFunction(arg) {
     return arg && (typeof arg === "function");
 }
 
-function isUndefined(arg) {
+export function isUndefined(arg) {
     return arg === undefined;
 }
 
-function isNull(arg) {
+export function isNull(arg) {
     return arg === null;
 }
 
-function isEmpty(arg) {
+export function isEmpty(arg) {
     return isUndefined(arg) || isNull(arg);
 }
 
-function append(target, source) {
+export function append(target, source) {
     Object.keys(source).forEach(function (key) {
         target[key] = source[key];
     });
 }
 
-function forEachMap(arg, func) {
+export function mapValues(arg, func) {
     return Object.keys(arg).map(func);
 }
 
-function forEachPromise(arg, func) {
+export function forEachPromise(arg, func) {
     return arg.forEach(function (single) {
         single.then(func);
     })
 }
 
-function objectIfEmpty(oldArg) {
+export function objectIfEmpty(oldArg) {
     if (isEmpty(oldArg)) {
         return {};
     }
     return oldArg;
 }
 
-function toPromise(arg) {
+export function arrayIfEmpty(oldArg) {
+    if (isEmpty(oldArg)) {
+        return [];
+    }
+    return oldArg;
+}
+
+export function toPromise(arg) {
     if (isPromise(arg)) {
         return arg;
     }
     return Promise.resolve(arg);
 }
 
-function execute(func) {
+export function execute(func) {
     if (isFunction(func)) {
         return func.apply(undefined, Array.prototype.slice.call(arguments, 1));
     } else {
@@ -64,15 +72,15 @@ function execute(func) {
     }
 }
 
-function noop() {
+export function noop() {
 }
-function forceThrow(msg) {
+export function forceThrow(msg) {
     return ()=> {
         throw new Error(msg);
     }
 }
 
-function getterSetter(subject, key, getter, setter) {
+export function getterSetter(subject, key, getter, setter) {
     Object.defineProperty(subject, key, {
         "configurable": false,
         "enumerable": true,

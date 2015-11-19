@@ -1,5 +1,21 @@
 //=include ./result.js
 
+import {
+    sumProgress,
+    addProgress
+} from './progress';
+
+import {
+    resolveResult
+} from './result';
+
+import {
+    isArray,
+    isObject
+} from './utils';
+
+// - - - - - - - - - - - - - - - - - - - - - - -
+
 function createArrayPhaseRunner(phase, progressCb) {
     //todo
 }
@@ -10,8 +26,7 @@ function createMapPhaseRunner(phase, progressCb) {
 function createFuncPhaseRunner(phase, progressCb) {
 
     function runner(result) {
-        console.log("runner", "run");
-        var {resultPromise, stepsPromises} = createResultResolver(phase(result));
+        var {resultPromise, stepsPromises} = resolveResult(phase(result));
 
         stepsPromises.forEach(function (step) {
             step.then(() => {
@@ -21,9 +36,6 @@ function createFuncPhaseRunner(phase, progressCb) {
             });
         });
 
-        console.log("runner", "promise", result);
-        resultPromise.then(r=>console.log("runner", "result", r));
-
         return resultPromise;
     }
 
@@ -32,8 +44,7 @@ function createFuncPhaseRunner(phase, progressCb) {
     return runner;
 }
 
-function createPhaseRunner(progressCb) {
-
+export function createPhaseRunner(progressCb) {
     return function (phase) {
         if (isArray(phase)) {
             return createArrayPhaseRunner(phase, progressCb);

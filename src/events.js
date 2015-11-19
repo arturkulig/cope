@@ -38,3 +38,7 @@ function addEvents(subject) {
     }
 
 }
+
+export {
+    addEvents
+}

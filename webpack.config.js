@@ -1,11 +1,16 @@
+var path = require("path");
 module.exports = {
-    entry: './src/index.js',
-    output: {
+    "entry": path.resolve(__dirname, "src/index.js"),
+    "output": {
         path: __dirname + "/dist",
         filename: "cope.js",
+        library: "cope",
         libraryTarget: "umd"
     },
-    loaders: [
-        { loader: 'babel?stage=0' }
-    ]
+    "module": {
+        "loaders": [
+            {test: /\.js$/, loader: 'babel?stage=0'}
+        ]
+    },
+    devtool: "source-map"
 };

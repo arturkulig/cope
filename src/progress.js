@@ -1,3 +1,9 @@
+import {
+    isArray
+} from './utils';
+
+// - - - - - - - - - - - - - - - - - - - - - - -
+
 function sumProgress(progressableArray) {
     if (isArray(progressableArray)) {
         return progressableArray.reduce((sum, step)=> {
@@ -16,4 +22,9 @@ function addProgress(subject) {
         }
         return subject._progress;
     };
+}
+
+export {
+    sumProgress,
+    addProgress
 }
