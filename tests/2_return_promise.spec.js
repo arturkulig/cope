@@ -1,8 +1,9 @@
 function noop() {
 }
 function err(msg, done) {
-    return ()=> {
+    return (error)=> {
         console.error(msg);
+        console.error(error.toString());
         expect(false).toBe(true);
         (done ? done : noop)();
     }
@@ -36,7 +37,7 @@ describe('cope', function () {
                     console.log("bum");
                     ctrl = 1;
                     resolve();
-                },10);
+                }, 10);
             }));
             var p = c();
 
@@ -59,6 +60,37 @@ describe('cope', function () {
                 return cont;
             });
             var c = cope(()=>promises.map(cont=>cont.promise));
+            var p = c();
+
+            expect(typeof c).toBe('function');
+            expect(typeof p).toBe('object');
+
+            p
+                .then(()=> {
+                    (ctrl ? done : err('cope finished too fast', done))();
+                })
+                .catch(err('cope failed', done));
+
+            setTimeout(()=> {
+                ctrl = 1;
+                promises.forEach((cont, i)=>cont.resolve(i));
+            });
+        });
+        it('with a func returning a map of promises', function (done) {
+            var ctrl = 0;
+            var promises = [1, 2].map(()=> {
+                var cont = {};
+                cont.promise = new Promise(resolve=> {
+                    cont.resolve = resolve;
+                });
+                return cont;
+            });
+            var c = cope(()=> {
+                return {
+                    a: promises[0].promise,
+                    b: promises[1].promise
+                }
+            });
             var p = c();
 
             expect(typeof c).toBe('function');
