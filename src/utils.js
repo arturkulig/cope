@@ -1,4 +1,3 @@
-
 export function isArray(arg) {
     return typeof arg === "object" && arg instanceof Array;
 }
@@ -33,8 +32,19 @@ export function append(target, source) {
     });
 }
 
+export function values(/*Object*/arg) {
+    return mapValues(arg, (key)=>arg[key]);
+}
+
 export function mapValues(arg, func) {
     return Object.keys(arg).map(func);
+}
+export function mapObject(arg, func) {
+    var mappedObject={};
+    Object.keys(arg).forEach((key) => {
+        mappedObject[key] = func(arg[key]);
+    });
+    return mappedObject;
 }
 
 export function forEachPromise(arg, func) {

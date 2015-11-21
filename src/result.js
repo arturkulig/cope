@@ -16,8 +16,6 @@ import {
 
 function collectResults(resultsArray) {
 
-    //console.log(resultsArray);
-
     var mergedResult = {};
 
     resultsArray.forEach((result)=> {
@@ -31,19 +29,19 @@ function collectResults(resultsArray) {
 
 function resolveArray(executionResult) {
     var stepsPromises = executionResult.map(toPromise);
-    var resultPromise = Promise.all(stepsPromises).then(collectResults);
+    var resultPromise = Promise.all(stepsPromises);
 
     return {stepsPromises, resultPromise};
 }
 
 function resolveMap(executionResult) {
-    var stepsPromises = mapValues(executionResult, function (key) {
+    var stepsPromises = mapValues(executionResult, toPromise);
+    var resultPromise = Promise.all(mapValues(executionResult, function (key) {
         return toPromise(executionResult[key])
             .then(function (resultPart) {
                 return {[key]: resultPart};
             });
-    });
-    var resultPromise = Promise.all(stepsPromises).then(collectResults);
+    })).then(collectResults);
 
     return {stepsPromises, resultPromise};
 }

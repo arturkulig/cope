@@ -11,47 +11,70 @@ import {
 
 import {
     isArray,
-    isObject
+    isObject,
+    isFunction,
+    mapObject
 } from './utils';
 
 // - - - - - - - - - - - - - - - - - - - - - - -
 
-function createArrayPhaseRunner(phase, progressCb) {
-    //todo
-}
-function createMapPhaseRunner(phase, progressCb) {
-    //todo
-}
-
-function createFuncPhaseRunner(phase, progressCb) {
-
-    function runner(result) {
-        var {resultPromise, stepsPromises} = resolveResult(phase(result));
-
-        stepsPromises.forEach(function (step) {
-            step.then(() => {
-                step.progress(1);
-                runner.progress(sumProgress(stepsPromises));
-                progressCb();
-            });
-        });
-
-        return resultPromise;
+function resolvePossibleFunc(func, arg) {
+    if (isFunction(func)) {
+        return func(arg);
+    } else {
+        return func;
     }
+}
 
-    addProgress(runner);
+function resolveObjectPhase(phase, previousResult) {
+    return resolveResult(
+        mapObject(
+            phase,
+            phasePart => resolvePossibleFunc(phasePart, previousResult)
+        )
+    );
+}
 
-    return runner;
+function resolveArrayPhase(phase, previousResult) {
+    return resolveResult(phase.map(
+        phasePart => resolvePossibleFunc(phasePart, previousResult)
+    ));
+}
+
+function resolveFuncPhase(phase, previousResult) {
+    return resolveResult(resolvePossibleFunc(phase, previousResult));
 }
 
 export function createPhaseRunner(progressCb) {
+
     return function (phase) {
-        if (isArray(phase)) {
-            return createArrayPhaseRunner(phase, progressCb);
-        } else if (isObject(phase)) {
-            return createMapPhaseRunner(phase, progressCb);
-        } else {
-            return createFuncPhaseRunner(phase, progressCb);
+
+        function runner(previousResult) {
+
+
+            if (isArray(phase)) {
+                var {resultPromise, stepsPromises} = resolveArrayPhase(phase, previousResult);
+            }
+            else if (isObject(phase)) {
+                var {resultPromise, stepsPromises} = resolveObjectPhase(phase, previousResult);
+            }
+            else {
+                var {resultPromise, stepsPromises} = resolveFuncPhase(phase, previousResult);
+            }
+
+            stepsPromises.forEach(function (step) {
+                step.then(() => {
+                    step.progress(1);
+                    runner.progress(sumProgress(stepsPromises));
+                    progressCb();
+                });
+            });
+
+            return resultPromise;
         }
+
+        addProgress(runner);
+
+        return runner;
     }
 }

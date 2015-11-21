@@ -22,12 +22,11 @@ function chain(oldChain, arg) {
     return create(utils.arrayIfEmpty(oldChain).concat([arg]));
 }
 
-function execute(chain, arg) {
-    var coperResult = utils.objectIfEmpty(arg);
+function execute(chain) {
 
     var coperPromise;
 
-    var promiseChain = Promise.resolve(coperResult);
+    var promiseChain = Promise.resolve();
 
     var recalculateProgress = () => {
         coperPromise.progress(
@@ -37,25 +36,8 @@ function execute(chain, arg) {
 
     var runners = utils.arrayIfEmpty(chain).map(createPhaseRunner(recalculateProgress));
 
-    var passResult = (/*any*/result) => {
-        if (utils.isObject(result) && utils.isObject(coperResult)) {
-            console.log("result:object",result);
-            var newCoperResult = {};
-            utils.append(newCoperResult, coperResult);
-            utils.append(newCoperResult, result);
-            return coperResult = newCoperResult;
-        } else if (!utils.isUndefined(result)) {
-            console.log("result:other",result);
-            return coperResult = utils.objectIfEmpty(result);
-        }
-        console.log("result:same",result);
-        return coperResult;
-    };
-
     var chainRunners = (/*Function*/ runner) => {
-        promiseChain = promiseChain
-            .then(runner)
-            .then(passResult);
+        promiseChain = promiseChain.then(runner);
     };
 
     runners.forEach(chainRunners);
@@ -69,10 +51,10 @@ function execute(chain, arg) {
 function create(currentChain = []) {
 
     function coper(arg) {
-        if (utils.isFunction(arg)) {
+        if (!utils.isEmpty(arg)) {
             return chain(currentChain, arg);
         } else {
-            return execute(currentChain, arg);
+            return execute(currentChain);
         }
     }
 
