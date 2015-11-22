@@ -15,7 +15,7 @@ module.exports = function (config) {
 
 
         // list of files / patterns to load in the browser
-        files: (process.env.TRAVIS ? ['node_modules/babel-core/browser-polyfill.min.js'] : []).concat([
+        files: (process.env.TRAVIS ? ['node_modules/babel-polyfill/dist/polyfill.min.js'] : []).concat([
             'src/index.js',
             'tests/*.spec.js'
         ]),
@@ -28,10 +28,18 @@ module.exports = function (config) {
         // preprocess matching files before serving them to the browser
         // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
         preprocessors: {
-            'src/index.js': ['webpack', 'sourcemap', 'coverage']
+            'src/index.js': ['webpack', 'sourcemap', 'coverage'],
+            'tests/*.spec.js': ['babel']
         },
 
         webpack: webpackConfig,
+
+        babelPreprocessor: {
+            options: {
+                presets: ['es2015'],
+                sourceMap: 'inline'
+            }
+        },
 
 
         // test results reporter to use

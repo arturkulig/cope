@@ -1,4 +1,3 @@
-//=include ./utils.js
-//=include ./cope.js
-import cope from './cope.js';
-export default cope;
+var cope = require('./cope.js');
+
+module.exports = cope.default;
