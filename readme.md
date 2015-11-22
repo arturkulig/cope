@@ -33,11 +33,8 @@ co(function *(){
 ### cope example
 ```javascript
 cope(()=>Promise.resolve(3))
-	({
-		"three": three => three,
-		"two": three => Promise.resolve(three - 1)
-	})
-	(nums => nums.three + nums.two)
+	((three) => Promise.resolve(three - 1))
+	((two,three) => three + two)
 	()
 	.then(five => console.log(five); /* 5 */);
 ```

@@ -9,7 +9,7 @@ import {
 } from './promise';
 
 import {
-    createPhaseRunner
+    createPhaseRunnerGenerator
 } from './runner';
 
 // - - - - - - - - - - - - - - - - - - - - - - -
@@ -26,23 +26,30 @@ function execute(chain) {
 
     var coperPromise;
 
-    var promiseChain = Promise.resolve();
-
     var recalculateProgress = () => {
         coperPromise.progress(
             progress.sumProgress(runners)
         );
     };
 
-    var runners = utils.arrayIfEmpty(chain).map(createPhaseRunner(recalculateProgress));
+    var runners = utils.arrayIfEmpty(chain).map(createPhaseRunnerGenerator(recalculateProgress));
+
+    var results = [];
+
+    var promiseChain = Promise.resolve();
 
     var chainRunners = (/*Function*/ runner) => {
-        promiseChain = promiseChain.then(runner);
+        promiseChain = promiseChain
+            .then(runner)
+            .then(result => {
+                results.unshift(result);
+                return results;
+            });
     };
 
     runners.forEach(chainRunners);
 
-    coperPromise = promiseChain;
+    coperPromise = promiseChain.then(() => results[0]);
     events.addEvents(coperPromise);
     progress.addProgress(coperPromise);
     return coperPromise;

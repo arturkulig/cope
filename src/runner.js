@@ -18,9 +18,16 @@ import {
 
 // - - - - - - - - - - - - - - - - - - - - - - -
 
-function resolvePossibleFunc(func, arg) {
+/**
+ * Function that runs a function if function is given
+ * or returns a value if first argument is a value
+ * @param {Function|*} func
+ * @param {Array} args
+ * @returns {*}
+ */
+function resolvePossibleFunc(func, args) {
     if (isFunction(func)) {
-        return func(arg);
+        return func.apply(null, args);
     } else {
         return func;
     }
@@ -45,21 +52,45 @@ function resolveFuncPhase(phase, previousResult) {
     return resolveResult(resolvePossibleFunc(phase, previousResult));
 }
 
-export function createPhaseRunner(progressCb) {
+/**
+ * @callback Phase
+ * @param {...*} previousResults
+ */
 
-    return function (phase) {
+/**
+ * @callback ProgressCallback
+ */
 
-        function runner(previousResult) {
+/**
+ *
+ * @param {ProgressCallback} progressCb
+ * @returns {createPhaseRunner}
+ */
+
+export function createPhaseRunnerGenerator(progressCb) {
+
+    /**
+     * Returns function that will deal with running a phase and reporting a progress
+     * @param {Phase} phase
+     * @returns {runner}
+     */
+    function createPhaseRunner(phase) {
+
+        /**
+         * Function that knows is for running phase that is has in its closure
+         * @param {Array} previousResults
+         */
+        function runner(previousResults) {
 
 
             if (isArray(phase)) {
-                var {resultPromise, stepsPromises} = resolveArrayPhase(phase, previousResult);
+                var {resultPromise, stepsPromises} = resolveArrayPhase(phase, previousResults);
             }
             else if (isObject(phase)) {
-                var {resultPromise, stepsPromises} = resolveObjectPhase(phase, previousResult);
+                var {resultPromise, stepsPromises} = resolveObjectPhase(phase, previousResults);
             }
             else {
-                var {resultPromise, stepsPromises} = resolveFuncPhase(phase, previousResult);
+                var {resultPromise, stepsPromises} = resolveFuncPhase(phase, previousResults);
             }
 
             stepsPromises.forEach(function (step) {
@@ -77,4 +108,6 @@ export function createPhaseRunner(progressCb) {
 
         return runner;
     }
+
+    return createPhaseRunner;
 }

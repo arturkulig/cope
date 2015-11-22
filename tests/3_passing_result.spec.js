@@ -37,7 +37,7 @@ describe('cope', function () {
                     done();
                 })
         });
-        it('two func phase, plain values', function (done) {
+        it('two func phases, plain values', function (done) {
             cope
             (()=>3)
             (wannaBeFive=>wannaBeFive + 2)
@@ -47,7 +47,7 @@ describe('cope', function () {
                     done();
                 });
         });
-        it('two func phase, Promises', function (done) {
+        it('two func phases, Promises', function (done) {
             cope
             (()=>Promise.resolve(3))
             (three=> new Promise(
@@ -59,7 +59,7 @@ describe('cope', function () {
                     done();
                 });
         });
-        it('two func phase, Promise of Array', function (done) {
+        it('two func phases, Promise of Array', function (done) {
             cope
             (()=>Promise.resolve([3]))
             (arrayOfThree => arrayOfThree[0] + 2)
@@ -69,7 +69,7 @@ describe('cope', function () {
                     done();
                 });
         });
-        it('two func phase, Array of Promises', function (done) {
+        it('two func phases, Array of Promises', function (done) {
             cope
             (()=>[
                 Promise.resolve(3),
@@ -82,7 +82,7 @@ describe('cope', function () {
                     done();
                 });
         });
-        it('two func phase, Map of Promises', function (done) {
+        it('two func phases, Map of Promises', function (done) {
             cope
             (()=> {
                 return {
@@ -97,7 +97,7 @@ describe('cope', function () {
                     done();
                 });
         });
-        it('two func phase, include array phase', function (done) {
+        it('two func phases, include array phase', function (done) {
             cope
             ([
                 ()=>2,
@@ -112,7 +112,7 @@ describe('cope', function () {
                     done();
                 });
         });
-        it('two func phase, include object phase', function (done) {
+        it('two func phases, include object phase', function (done) {
             cope
             ({
                 a: ()=>2,
@@ -121,6 +121,17 @@ describe('cope', function () {
                 d: 1
             })
             (result => result.a + result.b + result.c + result.d)
+            ()
+                .then(function (five) {
+                    expect(five).toBe(5);
+                    done();
+                });
+        });
+        it('three func phases, passing results between separated phases', function (done) {
+            cope
+            (() => Promise.resolve(1))
+            (() => Promise.resolve(3))
+            ((three, one) => three + one * 2)
             ()
                 .then(function (five) {
                     expect(five).toBe(5);
