@@ -4,8 +4,43 @@
 
 ##Idea
 
->TODO
+**cope** is ment as a replacement to **[co](https://github.com/tj/co)** for environments where you can't or don't want yet to use generator functions.
+Where **co** manages generator function that has to yield Promises and resumes function when these Promises are resolved, **cope** deals with sets of function that return Promises.
+Basically same things can be achieved with **co** and **cope**, but, of course, in different ways.
 
+##Simple examples
+Let's say (for the sake of keeping this example very simple) that getting *two* requires *three* and operation of addition is worth separating.
+###vanilla example
+```javascript
+var three = Promise.resolve(3);
+three
+	.then(three => {
+		return Promise.resolve(three - 1)
+			.then( two => {
+				return {three,two};
+			});
+	})
+	.then(five => console.log(five); /* 5 */);
+```
+###co example
+```javascript
+co(function *(){
+	var three = yield Promise.resolve(3);
+	var two = yield Promise.resolve(three - 1);
+	return three + two;
+}).then(five => console.log(five); /* 5 */);
+```
+### cope example
+```javascript
+cope(()=>Promise.resolve(3))
+	({
+		"three": three => three,
+		"two": three => Promise.resolve(three - 1)
+	})
+	(nums => nums.three + nums.two)
+	()
+	.then(five => console.log(five); /* 5 */);
+```
 ---
 
 ##Installation
