@@ -1,4 +1,4 @@
-#cope.js
+#cope.js [![Build Status](https://travis-ci.org/arturkulig/cope.svg?branch=master)](https://travis-ci.org/arturkulig/cope)
 
 ---
 
