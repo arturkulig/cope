@@ -98,6 +98,11 @@ export function createPhaseRunnerGenerator(progressCb) {
                     step.progress(1);
                     runner.progress(sumProgress(stepsPromises));
                     progressCb();
+                }, null, progress => {
+                    if (typeof progress === 'number') {
+                        runner.progress(sumProgress(stepsPromises));
+                        progressCb();
+                    }
                 });
             });
 

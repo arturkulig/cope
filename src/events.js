@@ -28,10 +28,10 @@ function addEvents(subject) {
         return subject;
     };
 
-    subject.triggerListener = function triggerListener(eventName) {
+    subject.triggerListener = function triggerListener(eventName, eventSubject) {
         if (listeners[eventName]) {
             listeners[eventName].forEach(listener=> {
-                listener.call(undefined, this);
+                listener.call(undefined, (eventSubject !== undefined ? eventSubject : null));
             });
         }
         return subject;

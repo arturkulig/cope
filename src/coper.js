@@ -1,6 +1,6 @@
-import * as progress from './progress';
-
-import * as events from './events';
+import {
+    sumProgress
+}  from './progress';
 
 import * as utils from './utils';
 
@@ -28,7 +28,7 @@ function execute(chain) {
 
     var recalculateProgress = () => {
         coperPromise.progress(
-            progress.sumProgress(runners)
+            sumProgress(runners)
         );
     };
 
@@ -38,7 +38,7 @@ function execute(chain) {
 
     var promiseChain = Promise.resolve();
 
-    var chainRunners = (/*Function*/ runner) => {
+    var chainRunners = (runner) => {
         promiseChain = promiseChain
             .then(runner)
             .then(result => {
@@ -49,9 +49,8 @@ function execute(chain) {
 
     runners.forEach(chainRunners);
 
-    coperPromise = promiseChain.then(() => results[0]);
-    events.addEvents(coperPromise);
-    progress.addProgress(coperPromise);
+    coperPromise = promiseChain.then(()=>results[0]);
+    enhancePromise(coperPromise);
     return coperPromise;
 }
 
