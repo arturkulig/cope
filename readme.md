@@ -1,16 +1,18 @@
-#cope.js [![Build Status](https://travis-ci.org/arturkulig/cope.svg?branch=master)](https://travis-ci.org/arturkulig/cope)
+# cope.js [![Build Status](https://travis-ci.org/arturkulig/cope.svg?branch=master)](https://travis-ci.org/arturkulig/cope)
 
 ---
 
-##Idea
+## Idea
 
-**cope** is ment as a replacement to **[co](https://github.com/tj/co)** for environments where you can't or don't want yet to use generator functions.
+**cope** is ment as a replacement to **[co](https://github.com/tj/co)** for environments where you can't or don't want yet to use generator functions, but it comes with a bonus of progress reporting what **co** won't be able to do cause of possibility of using loops inside of generator function.
+
 Where **co** manages generator function that has to yield Promises and resumes function when these Promises are resolved, **cope** deals with sets of function that return Promises.
 Basically same things can be achieved with **co** and **cope**, but, of course, in different ways.
 
-##Simple examples
+## Comparison examples
 Let's say (for the sake of keeping this example very simple) that getting *two* requires *three* and operation of addition is worth separating.
-###vanilla example
+
+### vanilla example
 ```javascript
 var three = Promise.resolve(3);
 three
@@ -22,7 +24,9 @@ three
 	})
 	.then(five => console.log(five); /* 5 */);
 ```
-###co example
+
+### co example
+
 ```javascript
 co(function *(){
 	var three = yield Promise.resolve(3);
@@ -30,7 +34,9 @@ co(function *(){
 	return three + two;
 }).then(five => console.log(five); /* 5 */);
 ```
+
 ### cope example
+
 ```javascript
 cope(()=>Promise.resolve(3))
 	((three) => Promise.resolve(three - 1))
@@ -38,28 +44,22 @@ cope(()=>Promise.resolve(3))
 	()
 	.then(five => console.log(five); /* 5 */);
 ```
----
 
-##Installation
+## Installation
 > npm install arturkulig/cope --save
 
-or..
-> bower install arturkulig/cope --save
+## Usage
 
-##Usage
+`cope` is packed with UMD, so can be used as CommonJS/AMD/global/ES6 module.
 
-`cope` can be used as ES5:(CommonJS/AMD/global)/ES6 module.
-
-ES6
+ES6 example
 ```javascript
-import cope from 'path_to_dist_folder/cope.es6.js';
+import cope from 'path_to_dist_folder/cope.js';
 ```
 
-AMD
+CommonJS
 ```javascript
-define(['path_to_dist_folder/cope.js'], function (copeModule) {
-    //do stuff
-});
+var cope = require('cope');
 ```
 
 Global registration
@@ -70,11 +70,51 @@ Global registration
 </script>
 ```
 
-##Example
+## Advanced examples
 
->TODO
+### Progress reporting
+Due to lib returning enhanced Promise you can do progress reporting inside a component or a store where you hold such information.
 
----
-#Docs
+```javascript
+cope
+(()=>asyncTask1())
+(()=>asyncTask2())
+(()=>asyncTask3())
+(()=>asyncTask4())
+().then(
+	(result) => console.log("done!", result),
+	(reason) => console.log("oopsies!", reason),
+	(progress) => console.log("almost done: ", progress*100, "%")
+)
+```
+..so if everything goes OK, it should output
 
->TODO
+	almost done: 25%
+	almost done: 50%
+	almost done: 75%
+	almost done: 100%
+	done!
+
+### Nesting
+
+If nesting copes you still get most precise progress result. Let's change previous example a little bit.
+
+```javascript
+cope
+(() => cope
+		(()=>asyncTask1())
+		(()=>asyncTask2())
+(() => asyncTask3())
+().then(
+	(result) => console.log("done!", result),
+	(reason) => console.log("oopsies!", reason),
+	(progress) => console.log("almost done: ", progress*100, "%")
+)
+```
+
+..again, if everything goes OK, it should output
+
+	almost done: 25%
+	almost done: 50%
+	almost done: 100%
+	done!
