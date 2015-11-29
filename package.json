@@ -2,9 +2,9 @@
   "name": "cope",
   "version": "0.1.1",
   "description": "",
-  "main": "dist/cope.umd.js",
-  "main-es6": "dist/cope.es6.js",
-  "jsnext:main": "dist/cope.es6.js",
+  "main": "dist/cope.js",
+  "main-es6": "dist/cope.js",
+  "jsnext:main": "dist/cope.js",
   "scripts": {
     "test": "./node_modules/.bin/karma start",
     "test_once": "./node_modules/.bin/karma start --single-run",
