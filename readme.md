@@ -70,6 +70,33 @@ Global registration
 </script>
 ```
 
+## Basic example
+
+```javascript
+cope
+	//so like this we start we define a queue
+(fetch('/api/something'))
+	// this will download something from some backend
+(response => response.json())
+	// with fetch we have to transform response to an object if it's json
+(json => console.log(json))
+	// so currently we are just previewing the response
+()
+	// and with this will actually run the queue
+```
+
+You can reuse once defined queue.
+
+```javascript
+setInterval(
+	cope
+	(fetch('/api/something'))
+	(response => response.json())
+	(json => console.log(json)),
+	1000
+);
+```
+
 ## Advanced examples
 
 ### Progress reporting
