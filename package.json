@@ -1,6 +1,6 @@
 {
   "name": "cope",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "",
   "main": "dist/cope.umd.js",
   "main-es6": "dist/cope.es6.js",
