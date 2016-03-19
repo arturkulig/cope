@@ -44,10 +44,10 @@ describe('cope', function () {
                     }
                 });
 
-            setTimeout(promises[0].resolve(), 0);
-            setTimeout(promises[1].resolve(), 0);
-            setTimeout(promises[2].resolve(), 0);
-            setTimeout(promises[3].resolve(), 0);
+            setTimeout(promises[0].resolve, 0);
+            setTimeout(promises[1].resolve, 0);
+            setTimeout(promises[2].resolve, 0);
+            setTimeout(promises[3].resolve, 0);
         });
 
         it('one array phase', function (done) {
@@ -78,12 +78,12 @@ describe('cope', function () {
                     }
                 });
 
-            setTimeout(promises[0].resolve(), 0);
-            setTimeout(promises[1].resolve(), 0);
-            setTimeout(promises[2].resolve(), 0);
+            setTimeout(promises[0].resolve, 0);
+            setTimeout(promises[1].resolve, 0);
+            setTimeout(promises[2].resolve, 0);
         });
 
-        it('one map phase', function (done) {
+        fit('one map phase', function (done) {
             var promises = [
                 getTestPromise(),
                 getTestPromise(),
@@ -92,14 +92,19 @@ describe('cope', function () {
 
             var progresses = [];
 
+            var currentProgress = 0;
+
             cope
             ({
                 a: ()=>promises[0].promise,
                 b: ()=>promises[1].promise
             })
-            (()=>promises[2].promise)
+            (result => {
+                expect(result).toEqual({a: 1, b: 2});
+            })
             ()
                 .then(noop, noop, progress => {
+                    currentProgress = progress;
                     progresses.push(progress);
                     if (progress === 1) {
                         expect(progresses).toEqual([
@@ -111,9 +116,14 @@ describe('cope', function () {
                     }
                 });
 
-            setTimeout(promises[0].resolve(), 0);
-            setTimeout(promises[1].resolve(), 0);
-            setTimeout(promises[2].resolve(), 0);
+            setTimeout(() => {
+                expect(currentProgress).toBe(0);
+                promises[0].resolve(1);
+            }, 0);
+            setTimeout(() => {
+                promises[1].resolve(2);
+            }, 0);
+            setTimeout(promises[2].resolve, 0);
         });
 
         it('nested cope phase', function (done) {
@@ -152,9 +162,9 @@ describe('cope', function () {
                     }
                 });
 
-            setTimeout(promises[0].resolve(), 0);
-            setTimeout(promises[1].resolve(), 0);
-            setTimeout(promises[2].resolve(), 0);
+            setTimeout(promises[0].resolve, 0);
+            setTimeout(promises[1].resolve, 0);
+            setTimeout(promises[2].resolve, 0);
         })
     });
 });

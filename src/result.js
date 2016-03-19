@@ -35,7 +35,7 @@ function resolveArray(executionResult) {
 }
 
 function resolveMap(executionResult) {
-    var stepsPromises = mapValues(executionResult, toPromise);
+    var stepsPromises = mapValues(executionResult, key => toPromise(executionResult[key]));
     var resultPromise = Promise.all(mapValues(executionResult, function (key) {
         return toPromise(executionResult[key])
             .then(function (resultPart) {

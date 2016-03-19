@@ -592,7 +592,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 	
 	function resolveMap(executionResult) {
-	    var stepsPromises = (0, _utils.mapValues)(executionResult, _utils.toPromise);
+	    var stepsPromises = (0, _utils.mapValues)(executionResult, function (key) {
+	        return (0, _utils.toPromise)(executionResult[key]);
+	    });
 	    var resultPromise = Promise.all((0, _utils.mapValues)(executionResult, function (key) {
 	        return (0, _utils.toPromise)(executionResult[key]).then(function (resultPart) {
 	            return _defineProperty({}, key, resultPart);
